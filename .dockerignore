@@ -1,0 +1,13 @@
+target/
+build_c/
+.git/
+*.o
+*.a
+tree.txt
+bmp.bmp
+*.jpg
+*.JPG
+*.png
+*.wav
+photorec.ses
+Dockerfile.test

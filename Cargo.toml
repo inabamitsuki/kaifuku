@@ -1,0 +1,20 @@
+[package]
+name = "kaifuku"
+version = "3.9.3"
+edition = "2021"
+authors = ["Daizenjou Project"]
+description = "Data Recovery Utility Based on Photorec"
+
+[build-dependencies]
+cc = "1.0"
+
+[dependencies]
+fltk = "1.5"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+anyhow = "1.0"
+log = "0.4"
+
+crossbeam-channel = "0.5"
+dirs = "5.0"
+miniz_oxide = "0.8"

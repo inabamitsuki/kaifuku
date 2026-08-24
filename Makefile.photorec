@@ -1,0 +1,88 @@
+CC = gcc
+CFLAGS = -g -O2 -Wall -I. -Ic_src $(DEFS) $(LIBS)
+DEFS = -DHAVE_CONFIG_H -DTESTDISK_LSB -D_GNU_SOURCE \
+	-DHAVE_STDINT_H -DHAVE_STRING_H -DHAVE_STDLIB_H -DHAVE_UNISTD_H \
+	-DHAVE_TIME_H -DHAVE_SYS_TIME_H -DHAVE_SYS_STAT_H \
+	-DHAVE_SIGNAL_H -DHAVE_FCNTL_H -DHAVE_ERRNO_H -DHAVE_CTYPE_H \
+	-DHAVE_STDARG_H -DHAVE_SYS_WAIT_H -DHAVE_SELECT_H \
+	-DHAVE_PREAD -DHAVE_PWRITE -DHAVE_MEMSET -DHAVE_STRDUP \
+	-DHAVE_STRERROR -DHAVE_STRSTR -DHAVE_STRCHR -DHAVE_SNPRINTF \
+	-DHAVE_VSNPRINTF -DHAVE_ATOLL -DHAVE_ATEXIT -DHAVE_MKDIR \
+	-DHAVE_LOCALTIME_R -DHAVE_GETCWD -DHAVE_CHDIR -DHAVE_CHMOD \
+	-DHAVE_STRTOUL -DHAVE_STRTOULL -DHAVE_STRTOL -DHAVE_FTELLO \
+	-DHAVE_FSEEKO -DHAVE_FTRUNCATE -DHAVE_GETPWUID -DHAVE_READLINK \
+	-DHAVE_STRPTIME -DHAVE_MEMMEM -DHAVE_MEMCMP -DHAVE_MEMCPY \
+	-DHAVE_MEMMOVE -DHAVE_MEMCHR -DHAVE_ALLOCA_H -DHAVE_LSTAT \
+	-DHAVE_DUP2 -DHAVE_EXECV -DHAVE_FORK -DHAVE_WAITPID \
+	-DHAVE_SIGACTION -DHAVE_UNAME -DHAVE_UTIME -DHAVE_GETTIMEOFDAY \
+	-DHAVE_FDATASYNC -DHAVE_FSYNC -DHAVE_SETENV -DHAVE_STRRCHR \
+	-DHAVE_STRCASECMP -DHAVE_STRNCASECMP -DHAVE_STRCASESTR \
+	-DHAVE_LOCALE_H -DHAVE_SETLOCALE -DHAVE_GETEUID -DHAVE_LOCALTIME \
+	-DHAVE_SLEEP -DHAVE_NANOSLEEP -DHAVE_SRAND -DHAVE_RAND \
+	-DHAVE_STRNCAT -DHAVE_POSIX_MEMALIGN -DHAVE_ALLOCA \
+	-DHAVE_BYTESWAP_H -DHAVE_SYS_PARAM_H -DHAVE_SYS_MOUNT_H \
+	-DHAVE_PWD_H -DHAVE_LIBGEN_H -DHAVE_LIMITS_H -DHAVE_INTTYPES_H \
+	-DHAVE_DIRENT_H -DHAVE_GLOB_H -DTARGET_LINUX
+AR = ar
+ARFLAGS = rcs
+
+SRCDIR = c_src
+OBJDIR = build_c
+
+# photorec_C
+PHOTOREC_C = \
+	photorec.c phcfg.c addpart.c chgarch.c chgtype.c \
+	dir.c exfatp.c ext2grp.c ext2_dir.c ext2p.c \
+	fat_dir.c fatp.c file_found.c ntfs_dir.c ntfsp.c \
+	poptions.c sessionp.c dfxml.c partgptro.c json_log.c \
+	phbf.c fat_unformat.c
+
+# fs_C
+FS_C = \
+	apfs.c bfs.c bsd.c btrfs.c cramfs.c \
+	exfat.c ext2.c fat.c fatx.c f2fs.c \
+	jfs.c gfs2.c hfs.c hfsp.c hpfs.c \
+	luks.c lvm.c md.c netware.c ntfs.c \
+	refs.c rfs.c savehdr.c sun.c swap.c \
+	sysv.c ufs.c vmfs.c wbfs.c xfs.c zfs.c
+
+# base_C
+BASE_C = \
+	apfs_common.c common.c crc.c ext2_common.c fat_common.c \
+	fnctdsk.c hdaccess.c hdcache.c hpa_dco.c \
+	intrf.c intrfn.c iso.c list_sort.c log.c log_part.c \
+	misc.c msdos.c ntfs_io.c ntfs_utl.c \
+	setdate.c unicode.c ewf.c utfsize.c fat_cluster.c
+
+# file_C (file type handlers)
+FILE_C = $(wildcard c_src/file_*.c) c_src/filegen.c
+FILE_C := $(subst c_src/,,$(FILE_C))
+FILE_C := $(filter-out file_template.c,$(FILE_C))
+
+# ncurses files needed by the scan engine (psearchn.c)
+NCURSES_C = psearchn.c
+
+# Stub files for missing TestDisk components
+STUB_C = arch_stubs.c
+
+# Our FFI wrapper
+FFI_C = kaifuku_ffi.c
+
+ALL_C = $(PHOTOREC_C) $(FS_C) $(BASE_C) $(FILE_C) $(NCURSES_C) $(STUB_C) $(FFI_C)
+ALL_OBJ = $(addprefix $(OBJDIR)/, $(ALL_C:.c=.o))
+
+.PHONY: all clean
+
+all: libphotorec.a
+
+libphotorec.a: $(ALL_OBJ)
+	$(AR) $(ARFLAGS) $@ $^
+
+$(OBJDIR)/%.o: c_src/%.c config.h | $(OBJDIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJDIR):
+	mkdir -p $(OBJDIR)
+
+clean:
+	rm -rf $(OBJDIR) libphotorec.a

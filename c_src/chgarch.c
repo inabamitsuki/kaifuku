@@ -1,0 +1,1 @@
+/* stub - TestDisk component removed */

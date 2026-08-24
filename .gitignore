@@ -1,0 +1,13 @@
+/target
+/build_c/
+/examples
+/example
+/test
+*.o
+*.a
+*.se2
+*.ses
+tree.txt
+src/Makefile
+src/Makefile.am
+src/Makefile.in

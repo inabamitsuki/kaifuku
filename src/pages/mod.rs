@@ -1,0 +1,23 @@
+pub mod about;
+pub mod advanced;
+pub mod deep;
+pub mod experimental;
+pub mod image_scan;
+pub mod menu;
+pub mod recovery;
+pub mod repair;
+pub mod scan;
+pub mod scanning;
+pub mod settings;
+
+pub use about::AboutPage;
+pub use advanced::AdvancedPage;
+pub use deep::DeepRepairPage;
+pub use experimental::ExperimentalPage;
+pub use image_scan::ImageScanPage;
+pub use menu::MenuPage;
+pub use recovery::RecoveryPage;
+pub use repair::RepairPage;
+pub use scan::ScanPage;
+pub use scanning::ScanningPage;
+pub use settings::SettingsPage;
