@@ -1,52 +1,31 @@
-# Kaifuku
+# Kaifuku — NSC Version
 
-**Kaifuku** is a data recovery and binary analysis application built around [PhotoRec](https://www.cgsecurity.org/wiki/PhotoRec). It provides a graphical interface for data recovery while integrating PhotoRec directly with a Rust-based application through a **Rust–C Foreign Function Interface (FFI)**.
+**Kaifuku** is a data recovery and binary analysis application developed as a project for the **NSC (National Software Contest)**.
 
-The project is designed to make file recovery easier to manage while providing additional tools for users who need to inspect recovered data at the binary level.
+This repository contains the **NSC competition version** of Kaifuku. It integrates the PhotoRec recovery engine with a Rust-based graphical application through a Rust–C FFI layer and provides additional tools for managing and analyzing recovered data.
+
+> **Note:** This repository represents the NSC version of Kaifuku and is not the final architecture of the project.
 
 ## Features
 
-- **Graphical Data Recovery**
-  - Recover files using PhotoRec through a graphical interface
-  - Select storage devices and partitions
-  - Configure recovery destinations
-  - Monitor recovery progress
+### Data Recovery
 
-- **PhotoRec Integration**
-  - Integrates PhotoRec with Kaifuku through Rust–C FFI
-  - Uses PhotoRec's file-carving recovery engine
-  - Modified PhotoRec source for direct integration with Kaifuku
+Kaifuku provides a graphical workflow for recovering files from storage devices using PhotoRec.
 
-- **Disk Imaging**
-  - Create DD disk images before recovery
-  - Use an existing disk image as the recovery source
-  - Perform recovery operations from an image without repeatedly accessing the original device
+The recovery workflow includes:
 
-- **Recovery Result Management**
-  - Organize recovered files by category
-  - Supported categories include:
-    - Pictures
-    - Videos
-    - Documents
-    - Other
+- Storage device selection
+- Partition selection
+- Recovery destination selection
+- Recovery configuration
+- Recovery progress monitoring
+- Recovered-file organization
 
-- **Binary Analysis**
-  - Inspect files at the byte level
-  - Analyze file signatures and magic numbers
-  - Inspect file offsets
-  - Analyze binary structures and metadata
+### PhotoRec Integration
 
-- **Advanced Mode**
-  - Hex Editor
-  - Signature Scanner
-  - Header Template Generator
-  - Recovery Log
+The NSC version integrates PhotoRec directly into the Kaifuku application.
 
-## Architecture
-
-Kaifuku is primarily written in **Rust**, while PhotoRec is written in **C**.
-
-The application uses a Rust–C Foreign Function Interface to connect the Kaifuku application layer with the PhotoRec recovery engine.
+Instead of treating PhotoRec only as an external command-line program, Kaifuku connects its Rust application layer with the C-based PhotoRec components through **Foreign Function Interface (FFI)**.
 
 ```text
 ┌──────────────────────────────┐
@@ -54,185 +33,196 @@ The application uses a Rust–C Foreign Function Interface to connect the Kaifuk
 │         Rust + FLTK          │
 └──────────────┬───────────────┘
                │
-               ▼
-┌──────────────────────────────┐
-│        Recovery Manager      │
-│             Rust             │
-└──────────────┬───────────────┘
-               │
                │ Rust ↔ C FFI
                ▼
 ┌──────────────────────────────┐
-│      Modified PhotoRec       │
+│      PhotoRec Components     │
 │              C               │
 └──────────────┬───────────────┘
                │
                ▼
 ┌──────────────────────────────┐
-│       File Carving Engine    │
-│           PhotoRec           │
+│       File Recovery          │
+│          PhotoRec            │
 └──────────────────────────────┘
 ```
 
-Additional components provide disk imaging, binary analysis, recovery-result organization, and advanced analysis tools.
+The `c_src/` directory contains the C components used by the NSC version, including PhotoRec/TestDisk source code and Kaifuku-specific integration code.
 
-## Recovery Workflow
+### Disk Imaging
 
-A typical recovery workflow is:
+Kaifuku supports creating disk images before performing recovery.
+
+A disk image can be used as the recovery source, allowing recovery operations to be performed without repeatedly accessing the original storage device.
 
 ```text
-Select Storage Device
-        │
-        ▼
-Create Disk Image (Optional)
-        │
-        ▼
-Select Recovery Source
-        │
-        ▼
-Configure Recovery
-        │
-        ▼
-Run PhotoRec
-        │
-        ▼
-Recover Files
-        │
-        ▼
-Organize Results
-        │
-        ▼
-Analyze Recovered Files
+Storage Device
+      │
+      │ Disk Imaging
+      ▼
+   DD Image
+      │
+      │ Recovery
+      ▼
+Recovered Files
 ```
 
-When a disk image is available, it can be used as the recovery source instead of accessing the original storage device directly.
+This workflow can be useful when working with important data because it allows the recovery process to operate on an image of the source.
 
-## Binary Analysis Tools
+### Recovery Result Management
 
-### Hex Editor
+Recovered files can be organized into categories to make large recovery results easier to navigate.
 
-The Hex Editor allows users to inspect binary data in hexadecimal and ASCII representations.
+Supported categories include:
 
-Features include:
+- Pictures
+- Videos
+- Documents
+- Other
 
-- Hexadecimal view
-- ASCII view
-- Offset information
-- Byte-level editing
+### Binary Analysis
+
+Kaifuku includes tools for inspecting recovered files at the binary level.
+
+These tools are intended to help users examine file contents, signatures, offsets, and binary structures.
+
+#### Hex Editor
+
+The Hex Editor provides a byte-level view of a file.
+
+It includes:
+
+- Hexadecimal representation
+- ASCII representation
+- Byte offsets
+- File navigation
 - Save
 - Save As
 
-It is intended for users who need to inspect or manually modify binary data.
+#### Signature Scanner
 
-### Signature Scanner
+The Signature Scanner searches binary data for known file signatures.
 
-The Signature Scanner searches binary data for known file signatures or magic numbers.
+It can display:
 
-It can:
+- Detected signatures
+- File types
+- Signature offsets
 
-- Detect file signatures
-- Display the offset where a signature was found
-- Identify detected file types
-- Help locate embedded or nested file data
+This can help users investigate the contents of recovered files and identify recognizable binary structures.
 
-This can be useful when investigating files with damaged or unusual structures.
+#### Header Template Generator
 
-### Header Template Generator
+The Header Template Generator provides templates related to supported file headers and structures.
 
-The Header Template Generator creates templates for file-structure components based on supported formats.
-
-Templates can be used as references during binary analysis or together with the Hex Editor.
+These templates can be used as references when examining binary data.
 
 ### Recovery Log
 
-Kaifuku provides a recovery log for recording important operations during the recovery process.
+Kaifuku provides logging for recovery-related operations.
 
-Logged information can include:
+The log can help users track activities performed during the recovery workflow.
 
-- Operation timestamps
-- Disk image creation
-- Recovery start
-- Recovery status
-- File output operations
-- Analysis results
+## Architecture
 
-## Supported Storage
+The NSC version consists primarily of a Rust application layer combined with C-based PhotoRec components.
 
-Kaifuku can work with storage devices detected by the underlying system, including:
+```text
+                    Kaifuku
+                       │
+        ┌──────────────┴──────────────┐
+        │                             │
+        ▼                             ▼
+   Rust Application             Binary Analysis
+        │
+        │
+        ▼
+   Rust–C FFI Layer
+        │
+        ▼
+  Modified / Integrated
+      PhotoRec
+        │
+        ▼
+   File Recovery Engine
+```
 
-- HDD
-- SSD
-- USB Flash Drive
-- Memory Card
-
-Recovery can also be performed from supported disk images such as DD images.
-
-## Supported File Systems
-
-Because Kaifuku uses PhotoRec as its primary recovery engine, supported file systems depend largely on PhotoRec's capabilities.
-
-Examples include:
-
-- FAT16
-- FAT32
-- exFAT
-- NTFS
-- ext2
-- ext3
-- ext4
-
-## Technology Stack
+### Main Technologies
 
 | Component | Technology |
 |---|---|
-| Main application | Rust |
+| Application | Rust |
 | GUI | FLTK / FLTK-RS |
-| Recovery engine | PhotoRec |
-| PhotoRec integration | C / Rust FFI |
-| Disk imaging | `dd` |
-| Partition management | GParted |
-| NTFS support | ntfs-3g |
-| Build system | Cargo |
-| Development environment | Linux |
+| Recovery Engine | PhotoRec |
+| Integration | Rust–C FFI |
+| Disk Imaging | `dd` |
+| Partition Management | GParted |
+| Build System | Cargo |
 
 ## Project Structure
 
-A simplified view of the software architecture:
+A simplified view of the repository:
 
 ```text
-Kaifuku
-├── GUI Module
-├── Device Detection
-├── Disk Imaging
-├── FFI Integration
-├── Recovery Module
-├── Binary Analysis
-├── Advanced Mode
-│   ├── Hex Editor
-│   ├── Signature Scanner
-│   ├── Header Template Generator
-│   └── Recovery Log
-└── Recovery Result Management
+Kaifuku/
+├── c_src/
+│   ├── PhotoRec / TestDisk C sources
+│   ├── Kaifuku FFI integration
+│   └── modified C components
+│
+├── src/
+│   ├── backend/
+│   │   ├── ffi.rs
+│   │   ├── photorec.rs
+│   │   └── ...
+│   ├── pages/
+│   ├── utils/
+│   └── ...
+│
+├── Cargo.toml
+├── build.rs
+├── LICENSE
+└── README.md
 ```
+
+## Recovery Workflow
+
+A typical recovery process is:
+
+```text
+1. Select storage device
+          ↓
+2. Create disk image (optional)
+          ↓
+3. Select recovery source
+          ↓
+4. Configure recovery
+          ↓
+5. Start recovery
+          ↓
+6. Organize recovered files
+          ↓
+7. Analyze recovered data
+```
+
+For important recovery operations, creating an image before recovery is recommended.
 
 ## Requirements
 
-Kaifuku is intended to run on a 64-bit Linux environment.
+The NSC version is designed for a 64-bit Linux environment.
 
-Recommended hardware:
+Recommended:
 
 - 64-bit Intel or AMD processor
-- 2 GB RAM or more
-- Storage space sufficient for disk images and recovered files
-- USB storage or other supported storage devices as recovery sources
+- At least 2 GB RAM
+- Sufficient storage for recovered data
+- Sufficient storage for disk images when using disk imaging
 
-When creating a disk image, the destination should preferably be stored on a **different storage device from the source**.
+Additional dependencies may be required depending on the Linux distribution and current build configuration.
 
 ## Building
 
-Make sure Rust and Cargo are installed.
-
-Clone the repository:
+Install Rust and Cargo, then clone the repository:
 
 ```bash
 git clone https://github.com/<your-username>/kaifuku.git
@@ -245,100 +235,81 @@ Build the project:
 cargo build --release
 ```
 
-Run the application:
+Run Kaifuku:
 
 ```bash
 cargo run --release
 ```
 
-> The exact build and dependency requirements may vary depending on the current project configuration and PhotoRec integration.
+The exact system dependencies may vary depending on the Linux distribution and project configuration.
 
-## Important Considerations
+## Recovery Limitations
 
-### Do not recover files to the source device
+Kaifuku's NSC version uses PhotoRec for file recovery, so recovery results depend on the underlying storage medium and the capabilities of the recovery engine.
 
-Recovered data should be written to a separate storage device whenever possible.
+Recovery cannot be guaranteed when:
 
-Writing recovered data back to the source device may overwrite data that could otherwise be recovered.
+- Data has been overwritten
+- Required data is no longer readable
+- The storage device has severe hardware problems
+- File data cannot be identified by the recovery engine
+- The original storage medium has been significantly damaged
 
-### Disk Imaging
+### Important
 
-For important recovery operations, creating a disk image first is recommended.
+Do **not** save recovered files to the same storage device from which you are attempting to recover data whenever possible.
 
-```text
-Original Storage
-       │
-       │  Disk Imaging
-       ▼
-   DD Image
-       │
-       ▼
-    Recovery
-```
+Writing data to the source device may overwrite data that could otherwise be recovered.
 
-This allows recovery operations to be repeated using the image rather than repeatedly accessing the original storage medium.
+## NSC Version
 
-### Recovery Limitations
+This repository represents the version of Kaifuku developed and submitted for the **NSC competition**.
 
-Data recovery is dependent on the condition of the storage device and the state of the underlying data.
+The project was developed with a focus on:
 
-Recovery may not be possible when:
-
-- Data has already been overwritten
-- The storage device has severe hardware failure
-- The required data is no longer readable
-- The underlying recovery engine cannot identify the required file data
-
-Kaifuku uses PhotoRec's file-carving approach, so recovery results depend on the characteristics of the files and the available data on the storage device.
-
-## Project Status
-
-Kaifuku is an experimental data recovery and binary analysis project developed as a software engineering and research project.
-
-The current focus is on:
-
-- Data recovery workflow
+- Data recovery
 - PhotoRec integration
 - Rust–C FFI
 - Disk imaging
-- Binary analysis
 - Recovery result management
-- Advanced binary-analysis tools
+- Binary analysis
+- Recovery-oriented tooling
 
-## Future Development
+The architecture and implementation may differ from later versions of the project.
 
-Potential future improvements include:
+## Third-Party Components
 
-- Support for additional file formats in binary analysis
-- Support for additional file systems
-- Improved storage-device diagnostics
-- SMART information analysis
-- More detailed recovery reports
-- Additional binary-analysis tools
-- Multilingual user interface
-- Digital-forensics-oriented logging and reporting
+This project incorporates components from the **PhotoRec/TestDisk** project developed by **CGSecurity**.
 
-## Disclaimer
+The `c_src/` directory contains third-party source code as well as Kaifuku-specific integration and modifications.
 
-Kaifuku is provided for legitimate data recovery, system administration, research, and educational purposes.
+Original copyright notices and applicable license information for third-party components are retained.
 
-Always obtain appropriate authorization before analyzing or recovering data from storage devices that you do not own or have permission to access.
-
-Data recovery is not guaranteed. Attempting recovery on damaged storage devices may cause further data loss, particularly if the device is unstable or failing.
+Please refer to the applicable license information included with the relevant third-party source code.
 
 ## License
 
-See the `LICENSE` file for the license applicable to this project and its components.
+Kaifuku is licensed under the **GNU General Public License v3.0 (GPL-3.0)**.
 
-PhotoRec is developed by the CGSecurity project. Please refer to the applicable PhotoRec and CGSecurity licensing terms when using or redistributing modified PhotoRec components.
+See the [`LICENSE`](LICENSE) file for the full license text.
+
+Third-party components, including PhotoRec/TestDisk source code, remain subject to their applicable copyright and license terms.
+
+## Disclaimer
+
+Kaifuku is intended for legitimate data recovery, research, educational, and system-administration purposes.
+
+Only use Kaifuku on storage devices or data that you own or have permission to analyze.
+
+Data recovery is not guaranteed. Recovery operations on unstable or physically damaged storage devices may result in further data loss.
 
 ## Acknowledgements
 
-- **PhotoRec / CGSecurity** — file-carving recovery engine
-- **Rust** — application and binary-analysis development
+- **CGSecurity / PhotoRec** — file recovery technology
+- **Rust** — application development
 - **FLTK** — graphical user interface
-- **Alpine Linux / Linux ecosystem** — underlying tools and development environment
+- **Linux ecosystem** — system and storage utilities
 
 ---
 
-**Kaifuku — Data Recovery & Binary Analysis**
+**Kaifuku — NSC Competition Version**
