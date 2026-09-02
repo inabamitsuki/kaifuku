@@ -225,7 +225,7 @@ Additional dependencies may be required depending on the Linux distribution and 
 Install Rust and Cargo, then clone the repository:
 
 ```bash
-git clone https://github.com/<your-username>/kaifuku.git
+git clone https://github.com/inabamitsuki/kaifuku.git
 cd kaifuku
 ```
 
